@@ -1,7 +1,8 @@
 using DrWatson
 quickactivate(@__DIR__, "routing_analysis")
-using Revise, sail_route
+using Revise, PyCall, sail_route 
 
+include(scriptdir()*"/load_performance_data.jl")
 
-println(sail_route.typical_aerrtsen())
-println(sail_route.generate_performance(120.0, [0.0, 5.0, 10.0, 20.0, 21.0], 0.3))
+data = load_tong()
+println(data)
