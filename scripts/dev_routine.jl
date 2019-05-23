@@ -1,5 +1,5 @@
 using DrWatson
-using sail_route, PyCall, Dates, Interpolations
+using sail_route, PyCall, Dates, Interpolations, Statistics, Formatting, StatsBase, UnicodePlots, BenchmarkTools
 rh = pyimport("routing_helper")
 
 function load_era5_ensemble(path_nc, ens)
@@ -43,7 +43,7 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
 end
 
 
-min_dist = 20.0
+min_dist = 100.0
 lon1 = -171.75
 lat1 = -13.917
 lon2 = -158.07
@@ -63,5 +63,5 @@ twa, tws, perf = sail_route.load_file(boat_performance)
 res = sail_route.typical_aerrtsen()
 polar = sail_route.setup_perf_interpolation(tws, twa, perf)
 sample_perf = sail_route.Performance(polar, 1.0, 1.0, res)
-results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
-println(results)
+@benchmark results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
+lineplot(results[2][:, 1], results[2][:, 2])
