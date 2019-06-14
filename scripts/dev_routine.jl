@@ -42,26 +42,37 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
     return x, y, wisp, widi, wadi, wahi
 end
 
+function dev_routing_example(min_dist, ensemble)
+    lon1 = -171.75
+    lat1 = -13.917
+    lon2 = -158.07
+    lat2 = -19.59
+    n = sail_route.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
+    base_path = "/scratch/td7g11/era5/"
+    route = sail_route.Route(lon1, lon2, lat1, lat2, n, n)
+    weather = base_path*"polynesia_2004_q1/polynesia_2004_q1.nc"
+    wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
+    x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
+    dims = size(wisp)
+    cusp, cudi = sail_route.return_current_vectors(y, dims[1])
+    start_time = Dates.DateTime(2004, 1, 1, 0, 0, 0)
+    boat_performance = datadir()*"performance/first40.csv"
+    twa, tws, perf = sail_route.load_file(boat_performance)
+    res = sail_route.typical_aerrtsen()
+    polar = sail_route.setup_perf_interpolation(tws, twa, perf)
+    sample_perf = sail_route.Performance(polar, 1.0, 1.0, res)
+    results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
+    #lineplot(results[2][:, 1], results[2][:, 2])
+    println(results[1])
+end
 
-min_dist = 100.0
-lon1 = -171.75
-lat1 = -13.917
-lon2 = -158.07
-lat2 = -19.59
-n = sail_route.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
-base_path = "/scratch/td7g11/era5/"
-route = sail_route.Route(lon1, lon2, lat1, lat2, n, n)
-weather = base_path*"polynesia_2004_q1/polynesia_2004_q1.nc"
-ensemble = 0
-wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
-x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
-dims = size(wisp)
-cusp, cudi = sail_route.return_current_vectors(y, dims[1])
-start_time = Dates.DateTime(2004, 1, 1, 0, 0, 0)
-boat_performance = datadir()*"performance/first40.csv"
-twa, tws, perf = sail_route.load_file(boat_performance)
-res = sail_route.typical_aerrtsen()
-polar = sail_route.setup_perf_interpolation(tws, twa, perf)
-sample_perf = sail_route.Performance(polar, 1.0, 1.0, res)
-@benchmark results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
-lineplot(results[2][:, 1], results[2][:, 2])
+
+#for i = 1:10
+@time dev_routing_example(100.0, 1)
+@time dev_routing_example(50.0, 1)
+#@time dev_routing_example(40.0, 1)
+#@time dev_routing_example(30.0, 1)
+#@time dev_routing_example(20.0, 1)
+#@time dev_routing_example(10.0, 1)
+#end
+
