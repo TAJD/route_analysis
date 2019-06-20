@@ -16,7 +16,7 @@ using Distributed
     """
     function generate_complete_settings()
         min_dist = 40.0 # 20.0
-        t_inc = 72  # 24
+        t_inc = 48  # 24
         base_path = datadir()*"sims/"
         perfs, perf_names = generate_performance_types()
         weather_paths, weather_names, weather_times = generate_full_weather_scenarios(t_inc)

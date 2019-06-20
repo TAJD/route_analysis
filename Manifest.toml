@@ -119,9 +119,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[DrWatson]]
 deps = ["FileIO", "LibGit2", "Pkg", "Random", "Requires"]
-git-tree-sha1 = "b741c55749b4a3478f9324aab2c046d0da83f66c"
+git-tree-sha1 = "ccc60bdc688a7720ff9ce11e06825ff3e2f28c4a"
 uuid = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
-version = "0.5.2"
+version = "0.5.3"
 
 [[Example]]
 deps = ["Test"]
@@ -387,9 +387,9 @@ version = "1.0.0"
 
 [[Tables]]
 deps = ["IteratorInterfaceExtensions", "LinearAlgebra", "Requires", "TableTraits", "Test"]
-git-tree-sha1 = "351a4b894122e1553c6ed05fda54086ab036adef"
+git-tree-sha1 = "c328ce4519e2c1ec7368e6ce98a5f916ecf230a8"
 uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "0.2.5"
+version = "0.2.6"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
