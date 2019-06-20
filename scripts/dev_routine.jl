@@ -1,46 +1,14 @@
 using DrWatson
+quickactivate(@__DIR__, "routing_analysis")
+include(srcdir()*"ensemble_routing.jl")
+include(srcdir()*"load_route_settings.jl")
+include(srcdir()*"load_weather.jl")
+include(srcdir()*"load_performance.jl")
+
+
 using sail_route, PyCall, Dates, Interpolations, Statistics, Formatting, StatsBase, UnicodePlots, BenchmarkTools
 rh = pyimport("routing_helper")
 
-function load_era5_ensemble(path_nc, ens)
-        wisp, widi, wh, wd, wp, time_values = rh.retrieve_era5_ensemble(path_nc, ens)
-    time = [Dates.unix2datetime(Int64(i)) for i in time_values]
-    return wisp, widi, wh, wd, wp, time
-end
-
-
-"""Generates the locations of points in a grid between the start and finish locations across the Earths surface."""
-function generate_coords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
-    x, y = rh.return_co_ords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
-    return x, y
-end
-
-
-"""Regrids the weather data to a grid which is the same as the sailing domain."""
-function regrid_domain(ds, req_lons, req_lats)
-    values, lons, lats = rh.return_data(ds)
-    req_lons = mod.(req_lons .+ 360.0, 360.0) 
-    interp_values = zeros((size(values)[1], size(req_lons)[1], size(req_lons)[2]))
-    knots = (lats[end:-1:1], lons)
-    for i in 1:size(values)[1]
-        itp = interpolate(knots, values[i, end:-1:1, :], Gridded(Linear()), )
-        eptl  = extrapolate(itp, Line())
-        interp_values[i, end:-1:1, :] = eptl.(req_lats, req_lons)
-    end
-    return interp_values
-end
-
-
-"""Generate domain information for routing problem."""
-function generate_inputs(route, wisp, widi, wadi, wahi)
-    y_dist = sail_route.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1) # in nm
-    x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
-    wisp = regrid_domain(wisp, x, y)
-    widi = regrid_domain(widi, x, y)
-    wadi = regrid_domain(wadi, x, y)
-    wahi = regrid_domain(wahi, x, y)
-    return x, y, wisp, widi, wadi, wahi
-end
 
 function dev_routing_example(min_dist, ensemble)
     lon1 = -171.75
@@ -50,19 +18,26 @@ function dev_routing_example(min_dist, ensemble)
     n = sail_route.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
     base_path = "/scratch/td7g11/era5/"
     route = sail_route.Route(lon1, lon2, lat1, lat2, n, n)
-    weather = base_path*"polynesia_2004_q1/polynesia_2004_q1.nc"
+    quarter = "q2"
+    year = "2005"
+    weather = base_path*"polynesia_"*year*"_"*quarter*"/polynesia_"*year*"_"*quarter*".nc"
+    start_time = Dates.DateTime(2005, 1, 1, 0, 0, 0)
     wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
     x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
     dims = size(wisp)
+    @show weather
+    @show mean(wisp)
+    @show mean(widi)
+    @show mean(wahi)
+    @show mean(wadi)
     cusp, cudi = sail_route.return_current_vectors(y, dims[1])
-    start_time = Dates.DateTime(2004, 1, 1, 0, 0, 0)
-    boat_performance = datadir()*"performance/first40.csv"
-    twa, tws, perf = sail_route.load_file(boat_performance)
-    res = sail_route.typical_aerrtsen()
+    tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
+    tws, twa, perf = rh.generate_circular_performance(90.0, tws_speeds, 0.3)
     polar = sail_route.setup_perf_interpolation(tws, twa, perf)
-    sample_perf = sail_route.Performance(polar, 1.0, 1.0, res)
+    res = sail_route.typical_aerrtsen()
+    sample_perf = sail_route.Performance(polar, 1.0, 1.0, res);
     results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
-    #lineplot(results[2][:, 1], results[2][:, 2])
+    lineplot(results[2][:, 1], results[2][:, 2])
     println(results[1])
 end
 

@@ -15,8 +15,8 @@ function generate_performance_types()
     polar_names = []
     for ua in upwind_angle
         for r in ratio
-            twa, tws, perf = pyperf.generate_circular_performance(ua, tws_speeds, r)
-            polar = sail_route.setup_perf_interpolation(tws, twa, perf')
+            tws, twa, perf = pyperf.generate_circular_performance(ua, tws_speeds, r)
+            polar = sail_route.setup_perf_interpolation(tws, twa, perf)
             push!(polars, polar)
             polar_name = string(round(ua; digits=2))*"_"*string(r)
             push!(polar_names, polar_name)

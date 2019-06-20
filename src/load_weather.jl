@@ -1,4 +1,43 @@
-using Dates
+using Dates, Interpolations, Statistics, StatsBase, PyCall
+rh = pyimport("routing_helper")
+
+function load_era5_ensemble(path_nc, ens)
+    wisp, widi, wh, wd, wp, time_values = rh.retrieve_era5_ensemble(path_nc, ens)
+    time = [Dates.unix2datetime(Int64(i)) for i in time_values]
+    return wisp, widi, wh, wd, wp, time
+end
+
+
+function generate_coords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
+    x, y = rh.return_co_ords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
+    return x, y
+end
+
+
+function regrid_domain(ds, req_lons, req_lats)
+    values, lons, lats = rh.return_data(ds)
+    req_lons = mod.(req_lons .+ 360.0, 360.0)
+    interp_values = zeros((size(values)[1], size(req_lons)[1], size(req_lons)[2]))
+    knots = (lats[end:-1:1], lons)
+    for i in size(values)[1]
+        itp = interpolate(knots, values[i, end:-1:1, :], Gridded(Linear()),)
+        ept1 = extrapolate(itp, Line())
+        interp_values[i, end:-1:1, :] = ept1.(req_lats, req_lons)
+    end
+    return interp_values
+end
+
+
+function generate_inputs(route, wisp, widi, wadi, wahi)
+    y_dist = sail_route.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
+    x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
+    wisp = regrid_domain(wisp, x, y)
+    widi = regrid_domain(widi, x, y)
+    wadi = regrid_domain(wadi, x, y)
+    wahi = regrid_domain(wahi, x, y)
+    return x, y, wisp, widi, wadi, wahi
+end
+
 
 function generate_sample_weather_scenarios(t_inc)
     base_path = "/scratch/td7g11/era5/"
@@ -114,3 +153,5 @@ function generate_full_weather_scenarios(t_inc)
     ]
     return paths, names, times
 end
+
+
