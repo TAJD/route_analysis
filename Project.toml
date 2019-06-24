@@ -1,4 +1,4 @@
-name = "routing_analysis"
+me = "routing_analysis"
 authors = ["Thomas Dickson"]
 
 [deps]
