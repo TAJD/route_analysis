@@ -13,7 +13,7 @@ using Distributed
         t_inc = 48
         min_dist = 40.0
         ensemble = 1
-        save_path = datadir()*"sims/vary_perf"
+        save_path = datadir()*"sims/vary_perf/"
         perfs, perf_names = generate_performance_types()
         weather_base_path = "/scratch/td7g11/era5/"
         weather_paths = [weather_base_path*"polynesia_2010_q1/polynesia_2010_q1.nc",
@@ -26,7 +26,7 @@ using Distributed
         start_lat = -21.21
         finish_lon = -149.42
         finish_lat = -17.67
-        route_name = "Tongagtapu_Tahiti"
+        route_name = "Tongatapu_Tahiti"
         save_paths = []
         settings = []
         for p in eachindex(perfs)
@@ -34,10 +34,9 @@ using Distributed
                 save_path = save_path*"_"*weather_names[w]*"_"*perf_names[p]*"_"*route_name*"_ensemble_"*string(ensemble)*"_"*string(min_dist)
                 push!(save_paths, save_path)
                 setting = [weather_times[w], weather_paths[w], perfs[p], start_lon, finish_lon, start_lat, finish_lat, min_dist, ensemble]
-                push!(settings, settings)
+                push!(settings, setting)
             end 
         end
-        println("Vary performance setting numbers; ", length(save_paths))
         return save_paths, settings
     end
 end
