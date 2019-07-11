@@ -53,17 +53,18 @@ function dev_routing_example(min_dist, ensemble, twa_min)
     dims = size(wisp)
     cusp, cudi = sail_route.return_current_vectors(y, dims[1])
     tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
-    tws, twa, perf = rh.generate_circular_performance(twa_min, tws_speeds, 0.3)
+    tws, twa, perf = rh.generate_canoe_performance(twa_min, tws_speeds, 0.3, 1.0)
     polar = sail_route.setup_perf_interpolation(tws, twa, perf)
     res = sail_route.typical_aerrtsen()
     sample_perf = sail_route.Performance(polar, 1.0, 1.0, res);
     results = sail_route.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
     println("twa_min = ", twa_min, " dist = ", min_dist, " ens = ", ensemble, " vt = ", results[1])
+    return results
 end
 
 
-for twa in [120.0, 160.0]
-    for i in 1:9
-        @time dev_routing_example(40.0, i, twa)
-    end
-end
+# for twa in [120.0, 160.0]
+#     for i in 1:9
+#         @time dev_routing_example(40.0, i, twa)
+#     end
+# end

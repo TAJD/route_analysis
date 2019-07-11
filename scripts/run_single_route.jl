@@ -10,10 +10,10 @@ using Distributed
     include(srcdir()*"load_performance.jl")
 
     function vary_performance()
-        t_inc = 48
-        min_dist = 40.0
+        t_inc = 120
+        min_dist = 20.0
         ensemble = 1
-        save_path = datadir()*"sims/vary_perf/"
+        save_path = datadir()*"vary_perf_20/"
         perfs, perf_names = generate_performance_types()
         weather_base_path = "/scratch/td7g11/era5/"
         weather_paths = [weather_base_path*"polynesia_2010_q1/polynesia_2010_q1.nc",
@@ -31,8 +31,8 @@ using Distributed
         settings = []
         for p in eachindex(perfs)
             for w in eachindex(weather_times)
-                save_path = save_path*"_"*weather_names[w]*"_"*perf_names[p]*"_"*route_name*"_ensemble_"*string(ensemble)*"_"*string(min_dist)
-                push!(save_paths, save_path)
+                fname = save_path*"_"*weather_names[w]*"_"*perf_names[p]*"_"*route_name*"_ensemble_"*string(ensemble)*"_"*string(min_dist)
+                push!(save_paths, fname)
                 setting = [weather_times[w], weather_paths[w], perfs[p], start_lon, finish_lon, start_lat, finish_lat, min_dist, ensemble]
                 push!(settings, setting)
             end 
@@ -49,6 +49,7 @@ function run_ensemble_simulations(n)
     sendto(workers(), settings=settings)
     parallized_ensemble_weather_routing(save_paths[n], settings[n][1], settings[n][2], settings[n][3], settings[n][4], settings[n][5], settings[n][6], settings[n][7], settings[n][8], settings[n][9])
 end
+
 
 if isempty(ARGS) == false
     @show i = parse(Int64, ARGS[1]); sendto(workers(), i=i)

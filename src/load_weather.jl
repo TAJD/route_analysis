@@ -32,7 +32,13 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
     y_dist = sail_route.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
     x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
     wisp = regrid_domain(wisp, x, y)
+    wisp = wisp.*0.51444444444444
     widi = regrid_domain(widi, x, y)
+    for i in eachindex(widi)
+        if widi[i] < 0.0
+            widi[i] += 360.0
+        end
+    end
     wadi = regrid_domain(wadi, x, y)
     wahi = regrid_domain(wahi, x, y)
     return x, y, wisp, widi, wadi, wahi
