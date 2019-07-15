@@ -1,5 +1,6 @@
-using Dates, Interpolations, Statistics, StatsBase, PyCall
+using Dates, Interpolations, Statistics, StatsBase, PyCall, Distributed, SharedArrays, ProgressMeter
 rh = pyimport("routing_helper")
+
 
 function load_era5_ensemble(path_nc, ens)
     wisp, widi, wh, wd, wp, time_values = rh.retrieve_era5_ensemble(path_nc, ens)
@@ -14,26 +15,33 @@ function generate_coords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
 end
 
 
-function regrid_domain(ds, req_lons, req_lats)
-    values, lons, lats = rh.return_data(ds)
-    req_lons = mod.(req_lons .+ 360.0, 360.0)
-    interp_values = zeros((size(values)[1], size(req_lons)[1], size(req_lons)[2]))
-    knots = (lats[end:-1:1], lons)
-    for i in size(values)[1]
-        itp = interpolate(knots, values[i, end:-1:1, :], Gridded(Linear()),)
-        ept1 = extrapolate(itp, Line())
-        interp_values[i, end:-1:1, :] = ept1.(req_lats, req_lons)
+@fastmath function regrid_domain(ds, x, y)
+    data, lons, lats = rh.return_data(ds)
+    req_lons = mod.(x .+ 360.0, 360.0)
+    time_indexes = [x for x in 1:size(data)[1]]
+    interp_values = zeros(size(data)[1], size(x)[1], size(x)[1])
+    knots = (time_indexes, lats[end:-1:1], lons)
+    itp = interpolate(knots, data[:, end:-1:1, :], Gridded(Linear()))
+    ept1 = extrapolate(itp, Flat())
+    for t in time_indexes
+        for i in 1:size(y)[1]
+            for j in 1:size(x)[1]
+                interp_values[t, j, i] = ept1(t, y[i, j], x[i, j])
+            end
+        end
     end
     return interp_values
 end
 
 
 function generate_inputs(route, wisp, widi, wadi, wahi)
-    y_dist = sail_route.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
+    y_dist = SailRoute.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
     x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
-    wisp = regrid_domain(wisp, x, y)
-    wisp = wisp.*0.51444444444444
-    widi = regrid_domain(widi, x, y)
+    @time wisp = regrid_domain(wisp, x, y)
+    @show wisp[1, 1:4, 1:4]
+    @time wisp = wisp.*0.51444444444444
+    @show wisp[1, 1:4, 1:4]
+    @time widi = regrid_domain(widi, x, y)
     for i in eachindex(widi)
         if widi[i] < 0.0
             widi[i] += 360.0

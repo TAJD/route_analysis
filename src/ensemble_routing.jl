@@ -2,7 +2,7 @@ using Distributed
 @everywhere begin
     using DrWatson
     quickactivate(@__DIR__, "routing_analysis")
-    using sail_route
+    using SailRoute
     using ParallelDataTransfer
     using BenchmarkTools
     using Printf
@@ -30,7 +30,7 @@ using Distributed
                                           wisp, widi, wadi, wahi, cusp, cudi)
         @show t_range, p_range
         for t in t_range, p in p_range
-            output = sail_route.route_solve(route, perfs[p], sim_times[t],                                                                            time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
+            output = SailRoute.route_solve(route, perfs[p], sim_times[t],                                                                            time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
             if isinf(output[1]) == true
                 @show output[1]
                 continue
@@ -63,8 +63,8 @@ using Distributed
         n_time = length(sim_times)
         n_perfs = length(perfs)
         results = SharedArray{Float64, 2}(n_time, n_perfs)
-        n = sail_route.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
-        route = sail_route.Route(lon1, lon2, lat1, lat2, n, n)
+        n = SailRoute.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
+        route = SailRoute.Route(lon1, lon2, lat1, lat2, n, n)
         results = SharedArray{Float64, 2}(n_time, n_perfs)
         x_results = SharedArray{Float64, 3}(n_time, n_perfs, n)
         y_results = SharedArray{Float64, 3}(n_time, n_perfs, n)
@@ -72,7 +72,7 @@ using Distributed
         wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
         x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
         dims = size(wisp)
-        cusp, cudi = sail_route.return_current_vectors(y, dims[1])
+        cusp, cudi = SailRoute.return_current_vectors(y, dims[1])
         @sync begin
             @show for p in procs(results)
                 @async remotecall_wait(route_solve_shared_sp_chunk!, p, results,
