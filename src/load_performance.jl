@@ -64,13 +64,13 @@ end
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance()
     t_inc = 120
-    min_dist = 20.0
+    min_dist = 40.0
     ensemble = 1
     save_path = datadir()*"vary_perf_20/"
     perfs, perf_names = generate_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
-    weather_paths = [weather_base_path*"polynesia_2005_q1/polynesia_2005_q1.nc",
-                     weather_base_path*"polynesia_2005_q2/polynesia_2005_q2.nc"]
+    weather_paths = [weather_base_path*"polynesia_2010_q1/polynesia_2010_q1.nc",
+                     weather_base_path*"polynesia_2010_q2/polynesia_2010_q2.nc"]
     weather_names = ["2010_q1",
                      "2010_q2"]
     weather_times = [Dates.DateTime(2010, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2010, 3, 31, 0, 0, 0),
@@ -95,7 +95,7 @@ end
 
 
 function load_tong()
-    path = datadir()*"/performance/tongiaki_vpp.csv"
+    path = datadir("performance","tongiaki_vpp.csv")
     df = CSV.read(path, delim=',', datarow=1)
     perf = convert(Matrix{Float64}, df)
     tws = Array{Float64}([0.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0])
@@ -105,7 +105,7 @@ end
 
 
 function load_boeckv2()
-    path = datadir()*"/performance/boeck_v2.csv"
+    path = datadir("performance", "boeck_v2.csv")
     df = CSV.read(path, delim=',', datarow=1)
     perf = convert(Matrix{Float64}, df)
     tws = Array{Float64}([0.0,5.832037,7.77605,9.720062,11.66407,13.60809,15.5521,17.49611])

@@ -3,11 +3,14 @@
 using Distributed
 @everywhere begin
     using DrWatson
+end
+
+@everywhere begin
     quickactivate(@__DIR__, "routing_analysis")
-    include(srcdir()*"ensemble_routing.jl")
-    include(srcdir()*"load_route_settings.jl")
-    include(srcdir()*"load_weather.jl")
-    include(srcdir()*"load_performance.jl")
+    include(srcdir("ensemble_routing.jl"))
+    include(srcdir("load_route_settings.jl"))
+    include(srcdir("load_weather.jl"))
+    include(srcdir("load_performance.jl"))
 end
 
 
@@ -23,5 +26,6 @@ end
 if isempty(ARGS) == false
    @show i = parse(Int64, ARGS[1]); sendto(workers(), i=i)
 end
+
 
 run_ensemble_simulations(i)

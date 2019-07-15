@@ -35,9 +35,9 @@ version = "0.6.0"
 
 [[CSV]]
 deps = ["CategoricalArrays", "DataFrames", "Dates", "Mmap", "Parsers", "PooledArrays", "Profile", "Tables", "Unicode", "WeakRefStrings"]
-git-tree-sha1 = "2ea7620282c60902d7f0085d190abe9cf9928981"
+git-tree-sha1 = "a7df9250dff3aba96436580dd6ac00d712364cab"
 uuid = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-version = "0.5.8"
+version = "0.5.9"
 
 [[Calculus]]
 deps = ["Compat"]
@@ -76,10 +76,10 @@ uuid = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 version = "1.3.0"
 
 [[DataFrames]]
-deps = ["CategoricalArrays", "Compat", "IteratorInterfaceExtensions", "Missings", "PooledArrays", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "StatsBase", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "7c0f86a01be0f77cc7f3f9096ed875f1217487e1"
+deps = ["CategoricalArrays", "Compat", "InvertedIndices", "IteratorInterfaceExtensions", "Missings", "PooledArrays", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "StatsBase", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "def266a7e5eb6f633ef4c72633d2a328b9450052"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "0.18.4"
+version = "0.19.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections"]
@@ -118,9 +118,9 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[DrWatson]]
 deps = ["FileIO", "LibGit2", "Pkg", "Random", "Requires"]
-git-tree-sha1 = "ccc60bdc688a7720ff9ce11e06825ff3e2f28c4a"
+git-tree-sha1 = "673d61b0a7b0a062c763b1f41f2d46cd239ab8b8"
 uuid = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
-version = "0.5.3"
+version = "0.6.0"
 
 [[Example]]
 deps = ["Test"]
@@ -162,6 +162,12 @@ deps = ["AxisAlgorithms", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "
 git-tree-sha1 = "e1bac96b5ef3ea23b50e801b4a988ec21861a47f"
 uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
 version = "0.12.2"
+
+[[InvertedIndices]]
+deps = ["Test"]
+git-tree-sha1 = "15732c475062348b0165684ffe28e85ea8396afc"
+uuid = "41ab1584-1d38-5bbf-9106-f11c6c58b48f"
+version = "1.0.0"
 
 [[Ipopt]]
 deps = ["BinaryProvider", "Compat", "Libdl", "MathOptInterface", "MathProgBase"]
@@ -343,7 +349,7 @@ version = "0.0.1"
 
 [[SailRoute]]
 deps = ["CSV", "DataFrames", "Dates", "Distributed", "Example", "Formatting", "Interpolations", "Ipopt", "IteratorInterfaceExtensions", "JuMP", "Revise", "Roots", "SafeTestsets", "SharedArrays", "Test"]
-git-tree-sha1 = "f64ff054bfd4044f3f73fabe1f07a7797e41c375"
+git-tree-sha1 = "62b7b70edab26a06fa30f5cfc020bda4ba744a51"
 repo-rev = "master"
 repo-url = "https://github.com/TAJD/SailRoute.jl"
 uuid = "115e5196-f809-57df-8580-7a2e8d592fff"

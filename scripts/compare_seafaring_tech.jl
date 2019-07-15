@@ -6,7 +6,7 @@ using Distributed
     quickactivate(@__DIR__, "routing_analysis")
     files = ["ensemble_routing", "load_route_settings", "load_weather", "load_performance"]
     for f in files
-        include(srcdir()*f*".jl")
+        include(srcdir(f*".jl"))
     end
 
     """Generate simulations to compare Tongiaki and Outrigger designs."""

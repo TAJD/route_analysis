@@ -3,10 +3,10 @@ using Distributed
 @everywhere begin
     using DrWatson
     quickactivate(@__DIR__, "routing_analysis")
-    include(srcdir()*"ensemble_routing.jl")
-    include(srcdir()*"load_route_settings.jl")
-    include(srcdir()*"load_weather.jl")
-    include(srcdir()*"load_performance.jl")
+    include(srcdir("ensemble_routing.jl"))
+    include(srcdir("load_route_settings.jl"))
+    include(srcdir("load_weather.jl"))
+    include(srcdir("load_performance.jl"))
 
 
     """ 

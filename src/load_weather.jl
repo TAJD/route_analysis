@@ -19,7 +19,7 @@ end
     data, lons, lats = rh.return_data(ds)
     req_lons = mod.(x .+ 360.0, 360.0)
     time_indexes = [x for x in 1:size(data)[1]]
-    interp_values = zeros(size(data)[1], size(x)[1], size(x)[1])
+    interp_values = Array{Float32}(undef, size(data)[1], size(x)[1], size(x)[1])
     knots = (time_indexes, lats[end:-1:1], lons)
     itp = interpolate(knots, data[:, end:-1:1, :], Gridded(Linear()))
     ept1 = extrapolate(itp, Flat())
@@ -38,9 +38,7 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
     y_dist = SailRoute.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
     x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
     @time wisp = regrid_domain(wisp, x, y)
-    @show wisp[1, 1:4, 1:4]
     @time wisp = wisp.*0.51444444444444
-    @show wisp[1, 1:4, 1:4]
     @time widi = regrid_domain(widi, x, y)
     for i in eachindex(widi)
         if widi[i] < 0.0
