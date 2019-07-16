@@ -11,7 +11,7 @@ end
 
 function generate_coords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
     x, y = rh.return_co_ords(lon1, lon2, lat1, lat2, n_ranks, n_nodes, dist)
-    return x, y
+    return Float32.(x), Float32.(y)
 end
 
 
@@ -37,9 +37,9 @@ end
 function generate_inputs(route, wisp, widi, wadi, wahi)
     y_dist = SailRoute.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
     x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
-    @time wisp = regrid_domain(wisp, x, y)
-    @time wisp = wisp.*0.51444444444444
-    @time widi = regrid_domain(widi, x, y)
+    wisp = regrid_domain(wisp, x, y)
+    wisp = wisp.*0.51444444444444
+    widi = regrid_domain(widi, x, y)
     for i in eachindex(widi)
         if widi[i] < 0.0
             widi[i] += 360.0
@@ -47,7 +47,7 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
     end
     wadi = regrid_domain(wadi, x, y)
     wahi = regrid_domain(wahi, x, y)
-    return x, y, wisp, widi, wadi, wahi
+    return x, y, Float32.(wisp), Float32.(widi), Float32.(wadi), Float32.(wahi)
 end
 
 

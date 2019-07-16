@@ -1,16 +1,13 @@
 # run simulation for range of performances for a single weather condition for a single route
 
-using Distributed
+using Distributed, ParallelDataTransfer
 @everywhere begin
     using DrWatson
-end
-
-@everywhere begin
-    quickactivate(@__DIR__, "routing_analysis")
-    include(srcdir("ensemble_routing.jl"))
-    include(srcdir("load_route_settings.jl"))
-    include(srcdir("load_weather.jl"))
-    include(srcdir("load_performance.jl"))
+    quickactivate(pwd()*"/")
+    include(srcdir()*"ensemble_routing.jl")
+    include(srcdir()*"load_route_settings.jl")
+    include(srcdir()*"load_weather.jl")
+    include(srcdir()*"load_performance.jl")
 end
 
 
@@ -25,6 +22,7 @@ end
 
 if isempty(ARGS) == false
    @show i = parse(Int64, ARGS[1]); sendto(workers(), i=i)
+   println(i)
 end
 
 
