@@ -63,10 +63,10 @@ end
 
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance()
-    t_inc = 240
-    min_dist = 50.0
+    t_inc = 24
+    min_dist = 20.0
     ensemble = 1
-    save_path = datadir()*"vary_perf_50"
+    save_path = datadir()*"vary_perf_20/"
     perfs, perf_names = generate_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
     weather_paths = [weather_base_path*"polynesia_2010_q1/polynesia_2010_q1.nc",
@@ -90,6 +90,7 @@ function vary_performance()
             push!(settings, setting)
         end 
     end
+    println(length(settings))
     return save_paths, settings
 end
 

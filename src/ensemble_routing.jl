@@ -6,15 +6,27 @@ using DataFrames
 using SharedArrays
 using HDF5
 
-"""Create a custom iterator which breaks up a range based on the processor number"""
+# """Create a custom iterator which breaks up a range based on the processor number, return split along dimension 2"""
+# function myrange(q::SharedArray) 
+#     @show idx = indexpids(q)
+#     if idx == 0 # This worker is not assigned a piece
+#         return 1:0, 1:0
+#     end
+#     nchunks = length(procs(q))
+#     splits = [round(Int, s) for s in range(0, stop=size(q,2), length=nchunks+1)]
+#     1:size(q,1), splits[idx]+1:splits[idx+1]
+# end
+
+
+"""Create a custom iterator which breaks up a range based on the processor number, return split along dimension 1"""
 function myrange(q::SharedArray) 
     @show idx = indexpids(q)
     if idx == 0 # This worker is not assigned a piece
         return 1:0, 1:0
     end
     nchunks = length(procs(q))
-    splits = [round(Int, s) for s in range(0, stop=size(q,2), length=nchunks+1)]
-    1:size(q,1), splits[idx]+1:splits[idx+1]
+    splits = [round(Int, s) for s in range(0, stop=size(q,1), length=nchunks+1)]
+    splits[idx]+1:splits[idx+1], 1:size(q,2)
 end
 
 function route_solve_save_path_chunk!(results, t_range, p_range, 

@@ -349,7 +349,7 @@ version = "0.0.1"
 
 [[SailRoute]]
 deps = ["CSV", "DataFrames", "Dates", "Distributed", "Example", "Formatting", "Interpolations", "Ipopt", "IteratorInterfaceExtensions", "JuMP", "Revise", "Roots", "SafeTestsets", "SharedArrays", "Test"]
-git-tree-sha1 = "62b7b70edab26a06fa30f5cfc020bda4ba744a51"
+git-tree-sha1 = "72791f70f2a10b04bafbd256506a66ce33ac82ba"
 repo-rev = "master"
 repo-url = "https://github.com/TAJD/SailRoute.jl"
 uuid = "115e5196-f809-57df-8580-7a2e8d592fff"

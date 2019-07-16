@@ -1,19 +1,20 @@
 # run simulations to compare the performance of seafaring technology
 
-using Distributed
+using Distributed, ParallelDataTransfer
 @everywhere begin
     using DrWatson
-    quickactivate(@__DIR__, "routing_analysis")
-    files = ["ensemble_routing", "load_route_settings", "load_weather", "load_performance"]
-    for f in files
-        include(srcdir(f*".jl"))
-    end
+    quickactivate(pwd()*"/")
+    include(srcdir()*"ensemble_routing.jl")
+    include(srcdir()*"load_route_settings.jl")
+    include(srcdir()*"load_weather.jl")
+    include(srcdir()*"load_performance.jl")
+
 
     """Generate simulations to compare Tongiaki and Outrigger designs."""
     function generate_comparison_simulations()
         t_inc = 120
         min_dist = 120.0
-        base_path = datadir()*"sims/comparison"
+        base_path = datadir()*"sims/comparison/"
         perf_names = ["simulations"]
         res = SailRoute.typical_aerrtsen()
         perfs = [[SailRoute.Performance(load_tong(), 1.0, 1.0, res), 
