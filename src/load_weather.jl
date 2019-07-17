@@ -20,13 +20,13 @@ end
     req_lons = mod.(x .+ 360.0, 360.0)
     time_indexes = [x for x in 1:size(data)[1]]
     interp_values = Array{Float32}(undef, size(data)[1], size(x)[1], size(x)[1])
-    knots = (time_indexes, lats[end:-1:1], lons)
+    knots = (time_indexes, lats[end:-1:1], lons) # knot vectors must be sorted in ascending order
     itp = interpolate(knots, data[:, end:-1:1, :], Gridded(Linear()))
     ept1 = extrapolate(itp, Flat())
     for t in time_indexes
         for i in 1:size(y)[1]
             for j in 1:size(x)[1]
-                interp_values[t, j, i] = ept1(t, y[i, j], x[i, j])
+                interp_values[t, i, j] = ept1(t, y[i, j], x[i, j]) #check the locations to make sure the values are going in the correct locations
             end
         end
     end

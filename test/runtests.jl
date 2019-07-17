@@ -1,3 +1,10 @@
-using Test
+#!/usr/bin/env julia
 
-# Include tests
+
+using DrWatson, Test
+quickactivate(pwd()*"/")
+using SailRoute, SafeTestsets
+println("Starting tests")
+
+
+@time @safetestset "Weather interpolation" begin include("test_weather.jl") end
