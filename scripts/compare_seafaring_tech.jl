@@ -65,4 +65,4 @@ end
 #i = 1; sendto(workers(), i=i)
 #
 #interrogate_ensemble_parallization(i)
-# run_ensemble_simulations(i)
+run_ensemble_simulations(i)

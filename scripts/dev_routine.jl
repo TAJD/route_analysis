@@ -6,7 +6,8 @@ include(srcdir("load_weather.jl"))
 include(srcdir("load_performance.jl"))
 
 
-using SailRoute, PyCall, Dates, Interpolations, Statistics, Formatting, StatsBase, UnicodePlots, BenchmarkTools
+using SailRoute, PyCall, Dates, Plots
+unicodeplots()
 rh = pyimport("routing_helper")
 
 
@@ -61,6 +62,39 @@ function dev_routing_example(min_dist, ensemble, twa_min)
     results = SailRoute.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
     println("twa_min = ", twa_min, " dist = ", min_dist, " ens = ", ensemble, " vt = ", results[1])
     return results
+end
+
+
+function dev_comparison_sims(min_dist, ensemble, year)
+    lon1 = -171.75
+    lat1 = -13.917
+    lon2 = -158.07
+    lat2 = -19.59
+    n = SailRoute.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
+    base_path = "/scratch/td7g11/era5/"
+    route = SailRoute.Route(lon1, lon2, lat1, lat2, n, n)
+    quarter = "q2"
+    year_str = string(year)
+    weather = base_path*"polynesia_"*year_str*"_"*quarter*"/polynesia_"*year_str*"_"*quarter*".nc"
+    start_time = Dates.DateTime(year, 1, 1, 0, 0, 0)
+    wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
+    x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
+    dims = size(wisp)
+    cusp, cudi = SailRoute.return_current_vectors(y, dims[1])
+    tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
+    # polar = load_boeckv2()
+    polar =  load_tong()
+    res = SailRoute.typical_aerrtsen()
+    sample_perf = SailRoute.Performance(polar, 1.0, 1.0, res);
+    @time results = SailRoute.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
+    return results
+end
+
+
+function plot_results(array)
+    for i in array
+        plot(i[2][:, 1], i[2][:, 2])
+    end
 end
 
 
