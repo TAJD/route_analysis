@@ -1,4 +1,4 @@
-using Dates, Interpolations, Statistics, StatsBase, PyCall, Distributed, SharedArrays, ProgressMeter
+using Dates, Interpolations, PyCall, CSV, SailRoute
 rh = pyimport("routing_helper")
 
 
@@ -38,7 +38,7 @@ function generate_inputs(route, wisp, widi, wadi, wahi)
     y_dist = SailRoute.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
     x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
     wisp = regrid_domain(wisp, x, y)
-    wisp = wisp.*0.51444444444444
+    wisp = wisp.*1.9438444924406 # convert from m/s to knots
     widi = regrid_domain(widi, x, y)
     for i in eachindex(widi)
         if widi[i] < 0.0
@@ -167,3 +167,45 @@ function generate_full_weather_scenarios(t_inc)
 end
 
 
+
+"""Load current data for mid Pacific. Returns two extrapolate types which return the current speed and direction as a function of Latitude."""
+function load_current_data()
+    path = datadir()*"/current_data/"
+    m_path = path*"meridional.csv"
+    z_path = path*"zonal.csv"
+    meridional = convert(Matrix{Float32}, CSV.read(m_path, delim=',', datarow=1))
+    zonal = convert(Matrix{Float32}, CSV.read(z_path, delim=',', datarow=1))
+    meridional[:, 1] *= (0.01*1.9438444924406) # convert from cm/s to knots
+    zonal[:, 1] *= (0.01*1.9438444924406)
+    meridional = meridional[end:-1:1, :]
+    zonal = zonal[end:-1:1, :]
+    merid_interp = interpolate((meridional[:, 2],), meridional[:, 1], Gridded(Linear()))
+    merid = extrapolate(merid_interp, Line())  
+    zonal_interp = interpolate((zonal[:, 2],), zonal[:, 1], Gridded(Linear()))
+    zonal = extrapolate(zonal_interp, Line())  
+    lats = collect(LinRange(-25, 25, 80))
+    merid_sp = merid.(lats)
+    zonal_sp = zonal.(lats)
+    r = zeros(size(lats))
+    theta = zeros(size(lats))
+    r = [SailRoute.calc_polars(merid_sp[i], zonal_sp[i])[1] for i in eachindex(lats)]
+    theta = [SailRoute.calc_polars(merid_sp[i], zonal_sp[i])[2] for i in eachindex(lats)]
+    r_interp = interpolate((lats,), r, Gridded(Linear()))
+    r_final = extrapolate(r_interp, Line()) 
+    theta_interp = interpolate((lats,), theta, Gridded(Linear()))
+    theta_final = extrapolate(theta_interp, Line())
+    return r_final, theta_final
+end
+
+
+"""Return arrays of current speed and direction as a function of Latitude and length of weather scenario."""
+function return_current_vectors(y, t_length)
+    cusp = zeros((t_length, size(y)[1], size(y)[2]))
+    cudi = zeros((t_length, size(y)[1], size(y)[2]))
+    r, theta = load_current_data()
+    for i in 1:t_length
+        cusp[i, :, :] = r.(y)
+        cudi[i, :, :] = theta.(y)
+    end
+    return Float32.(cusp), Float32.(cudi)
+end

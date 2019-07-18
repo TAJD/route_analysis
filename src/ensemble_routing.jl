@@ -79,7 +79,7 @@ function parallized_ensemble_weather_routing(save_path, times,
     wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
     x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
     dims = size(wisp)
-    cusp, cudi = SailRoute.return_current_vectors(y, dims[1])
+    cusp, cudi = return_current_vectors(y, dims[1])
     @sync begin
         @show for p in procs(results)
             @async remotecall_wait(route_solve_shared_sp_chunk!, p, results,

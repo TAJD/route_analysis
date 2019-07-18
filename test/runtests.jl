@@ -7,4 +7,4 @@ using SailRoute, SafeTestsets
 println("Starting tests")
 
 
-@time @safetestset "Weather interpolation" begin include("test_weather.jl") end
+@time @safetestset "Wind interpolation" begin include("test_wind.jl") end
