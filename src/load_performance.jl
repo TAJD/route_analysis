@@ -6,34 +6,6 @@ pyperf = pyimport("routing_helper")
 
 Return the polars/performances in one array and the names in a second.
 """
-function generate_performance_types()
-    upwind_angle = LinRange(60.0, 160.0, 6)
-    ratio = LinRange(0.2, 0.5, 4)
-    tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
-    wave_resistance_model = SailRoute.typical_aerrtsen()
-    polars = []
-    polar_names = []
-    for ua in upwind_angle
-        for r in ratio
-            tws, twa, perf = pyperf.generate_canoe_performance(ua, tws_speeds, r, 0.5)
-            polar = SailRoute.setup_perf_interpolation(tws, twa, perf)
-            push!(polars, polar)
-            polar_name = string(round(ua; digits=2))*"_"*string(r)
-            push!(polar_names, polar_name)
-        end
-    end
-    names = []
-    performances = []
-    for p in eachindex(polars)
-        push!(performances, [SailRoute.Performance(polars[p], unc, 1.0,
-                             wave_resistance_model) for unc in LinRange(0.9, 1.1, 3)])
-        push!(names, polar_names[p])
-    end
-    return performances, names
-end
-
-
-"""Generate synthetic canoe performances"""
 function generate_canoe_performance_types()
     upwind_angle = LinRange(60, 160, 6)
     ratio = LinRange(0.2, 0.5, 4)
@@ -63,18 +35,18 @@ end
 
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance()
-    t_inc = 48
-    min_dist = 20.0
+    t_inc = 72
+    min_dist = 30.0
     ensemble = 1
-    save_path = datadir()*"/vary_perf_20/"
-    perfs, perf_names = generate_performance_types()
+    save_path = datadir()*"/vary_perf_30/"
+    perfs, perf_names = generate_canoe_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
-    weather_paths = [weather_base_path*"polynesia_2010_q1/polynesia_2010_q1.nc",
-                     weather_base_path*"polynesia_2010_q2/polynesia_2010_q2.nc"]
-    weather_names = ["2010_q1",
-                     "2010_q2"]
-    weather_times = [Dates.DateTime(2010, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2010, 3, 31, 0, 0, 0),
-                     Dates.DateTime(2010, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2010, 6, 30, 0, 0, 0)]
+    weather_paths = [weather_base_path*"polynesia_1997_q1/polynesia_1997_q1.nc",
+                     weather_base_path*"polynesia_1997_q2/polynesia_1997_q2.nc"]
+    weather_names = ["1997_q1",
+                     "1997_q2"]
+    weather_times = [Dates.DateTime(1997, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1997, 3, 31, 0, 0, 0),
+                     Dates.DateTime(1997, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1997, 6, 30, 0, 0, 0)]
     start_lon = -175.15
     start_lat = -21.21
     finish_lon = -149.42

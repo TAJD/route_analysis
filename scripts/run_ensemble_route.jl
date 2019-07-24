@@ -15,7 +15,7 @@ using Distributed, ParallelDataTransfer
     Generate a list of complete settings from the constituent smaller lists of settings.
     """
     function generate_complete_settings()
-        min_dist = 60.0 # 20.0
+        min_dist = 50.0 # 20.0
         t_inc = 72  # 24
         base_path = datadir()*"/sims/"
         perfs, perf_names = generate_performance_types()

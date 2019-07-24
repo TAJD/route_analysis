@@ -21,9 +21,9 @@ end
 
 
 if isempty(ARGS) == false
-   @show i = parse(Int64, ARGS[1]); sendto(workers(), i=i)
-   println(i)
+   i = parse(Int64, ARGS[1]); sendto(workers(), i=i)
+   @show i
 end
 
 
-run_ensemble_simulations(i)
+@time run_ensemble_simulations(i)
