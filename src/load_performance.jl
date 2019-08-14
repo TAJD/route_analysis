@@ -35,18 +35,18 @@ end
 
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance()
-    t_inc = 72
+    t_inc = 24
     min_dist = 30.0
     ensemble = 1
-    save_path = datadir()*"/vary_perf_30/"
+    save_path = datadir()*"/vary_perf_75_30/"
     perfs, perf_names = generate_canoe_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
-    weather_paths = [weather_base_path*"polynesia_1997_q1/polynesia_1997_q1.nc",
-                     weather_base_path*"polynesia_1997_q2/polynesia_1997_q2.nc"]
-    weather_names = ["1997_q1",
-                     "1997_q2"]
-    weather_times = [Dates.DateTime(1997, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1997, 3, 31, 0, 0, 0),
-                     Dates.DateTime(1997, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1997, 6, 30, 0, 0, 0)]
+    weather_paths = [weather_base_path*"polynesia_2004_q1/polynesia_2004_q1.nc",
+                     weather_base_path*"polynesia_2004_q2/polynesia_2004_q2.nc"]
+    weather_names = ["2004_q1",
+                    "2004_q2"]
+    weather_times = [Dates.DateTime(2004, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 3, 31, 0, 0, 0),
+                     Dates.DateTime(2004, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 6, 30, 0, 0, 0)]
     start_lon = -175.15
     start_lat = -21.21
     finish_lon = -149.42
@@ -67,12 +67,22 @@ function vary_performance()
 end
 
 
-function load_tong()
+function load_tong_old_perf()
     path = datadir()*"/performance/tongiaki_vpp.csv"
     df = CSV.read(path, delim=',', datarow=1)
     perf = convert(Matrix{Float64}, df)
     tws = Array{Float64}([0.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 20.0])
     twa = Array{Float64}([0.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0])
+    return SailRoute.setup_perf_interpolation(tws, twa, perf)
+end
+
+
+function load_tong()
+    path = datadir()*"/performance/tongiaki_201908.csv"
+    df = CSV.read(path, delim=',', datarow=1)
+    perf = convert(Matrix{Float64}, df)
+    tws = Array{Float64}([0.0, 4.0, 6.0, 8.0, 10.0, 12.0,  16.0, 20.0, 25.0, 30.0, 35.0])
+    twa = Array{Float64}([0.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0,135.0,150.0,160.0,170.0])
     return SailRoute.setup_perf_interpolation(tws, twa, perf)
 end
 

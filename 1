@@ -4,10 +4,10 @@ using Distributed, ParallelDataTransfer
 @everywhere begin
     using DrWatson
     quickactivate(pwd()*"/")
-    include(srcdir("ensemble_routing.jl"))
-    include(srcdir("load_route_settings.jl"))
-    include(srcdir("load_weather.jl"))
-    include(srcdir("load_performance.jl"))
+    include(srcdir()*"ensemble_routing.jl")
+    include(srcdir()*"load_route_settings.jl")
+    include(srcdir()*"load_weather.jl")
+    include(srcdir()*"load_performance.jl")
 end
 
 
@@ -25,6 +25,5 @@ if isempty(ARGS) == false
    @show i
 end
 
-# i = 1
 
 @time run_ensemble_simulations(i)

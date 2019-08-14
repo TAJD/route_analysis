@@ -4,17 +4,17 @@ using Distributed, ParallelDataTransfer
 @everywhere begin
     using DrWatson
     quickactivate(pwd()*"/")
-    include(srcdir()*"ensemble_routing.jl")
-    include(srcdir()*"load_route_settings.jl")
-    include(srcdir()*"load_weather.jl")
-    include(srcdir()*"load_performance.jl")
+    include(srcdir("ensemble_routing.jl"))
+    include(srcdir("load_route_settings.jl"))
+    include(srcdir("load_weather.jl"))
+    include(srcdir("load_performance.jl"))
 
 
     """Generate simulations to compare Tongiaki and Outrigger designs."""
     function generate_comparison_simulations()
         t_inc = 24
         min_dist = 40.0
-        base_path = datadir()*"sims/comparison/daily/"
+        base_path = datadir()*"sims/comparison/daily_40/"
         perf_names = ["simulations"]
         res = SailRoute.typical_aerrtsen()
         perfs = [[SailRoute.Performance(load_tong(), 1.0, 1.0, res), 
