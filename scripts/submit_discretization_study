@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH --time=40:00:00
+#SBATCH --ntasks=20
+
+ulimit -c 0 
+export PATH="/scratch/td7g11/julia/julia-1.1.0/bin/:${PATH}"
+
+cd $HOME/routing_analysis
+
+
+julia -p 20  scripts/run_discretization_study.jl 1 30
+julia -p 20  scripts/run_discretization_study.jl 1 20
+julia -p 30  scripts/run_discretization_study.jl 1 10

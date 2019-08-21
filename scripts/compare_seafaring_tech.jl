@@ -14,13 +14,13 @@ using Distributed, ParallelDataTransfer
     function generate_comparison_simulations()
         t_inc = 24
         min_dist = 40.0
-        base_path = datadir()*"sims/comparison/daily_40/"
+        base_path = datadir()*"/sims/comparison/daily_40/"
         perf_names = ["simulations"]
         res = SailRoute.typical_aerrtsen()
         perfs = [[SailRoute.Performance(load_tong(), 1.0, 1.0, res), 
                 SailRoute.Performance(load_boeckv2(), 1.0, 1.0, res)]];
         weather_paths, weather_names, weather_times = generate_full_weather_scenarios(t_inc)
-        start_loc_names, finish_loc_names, start_lat, start_lon, finish_lat, finish_lon = generate_route_settings()
+        start_loc_names, finish_loc_names, start_lat, start_lon, finish_lat, finish_lon = samoa_aituitaki_settings()
         settings = []
         save_paths = []
         for loc in eachindex(start_loc_names)

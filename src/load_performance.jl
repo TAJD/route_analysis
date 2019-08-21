@@ -47,11 +47,16 @@ function vary_performance()
                     "2004_q2"]
     weather_times = [Dates.DateTime(2004, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 3, 31, 0, 0, 0),
                      Dates.DateTime(2004, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 6, 30, 0, 0, 0)]
-    start_lon = -175.15
-    start_lat = -21.21
-    finish_lon = -149.42
-    finish_lat = -17.67
-    route_name = "Tongatapu_Tahiti"
+    # start_lon = -175.15
+    # start_lat = -21.21
+    # finish_lon = -149.42
+    # finish_lat = -17.67
+    # route_name = "Tongatapu_Tahiti"
+    start_lon = 360-171.75
+    start_lat = -13.6
+    finish_lon = 360-159.79
+    finish_lat = -18.85
+    route_name = "Samoa_Aitiutaki"
     save_paths = []
     settings = []
     for p in eachindex(perfs)
@@ -82,7 +87,7 @@ function load_tong()
     df = CSV.read(path, delim=',', datarow=1)
     perf = convert(Matrix{Float64}, df)
     tws = Array{Float64}([0.0, 4.0, 6.0, 8.0, 10.0, 12.0,  16.0, 20.0, 25.0, 30.0, 35.0])
-    twa = Array{Float64}([0.0, 70.0, 80.0, 90.0, 100.0, 110.0, 120.0,135.0,150.0,160.0,170.0])
+    twa = Array{Float64}([0.0, 80.0, 90.0, 100.0, 110.0, 120.0,135.0,150.0,160.0,170.0])
     return SailRoute.setup_perf_interpolation(tws, twa, perf)
 end
 
