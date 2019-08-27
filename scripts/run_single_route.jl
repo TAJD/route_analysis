@@ -13,7 +13,7 @@ end
 
 function run_ensemble_simulations(n)
     n += 0
-    save_paths, settings = vary_performance()
+    save_paths, settings = vary_performance_investigation()
     sendto(workers(), save_paths=save_paths)
     sendto(workers(), settings=settings)
     parallized_ensemble_weather_routing(save_paths[n], settings[n][1], settings[n][2], settings[n][3], settings[n][4], settings[n][5], settings[n][6], settings[n][7], settings[n][8], settings[n][9])

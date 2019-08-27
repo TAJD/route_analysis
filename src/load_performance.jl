@@ -1,4 +1,4 @@
-using DrWatson, PyCall, SailRoute
+using DrWatson, PyCall, SailRoute, Dates
 pyperf = pyimport("routing_helper")
 
 
@@ -7,7 +7,7 @@ pyperf = pyimport("routing_helper")
 Return the polars/performances in one array and the names in a second.
 """
 function generate_canoe_performance_types()
-    upwind_angle = LinRange(60, 160, 6)
+    upwind_angle = LinRange(75, 160, 6)
     ratio = LinRange(0.2, 0.5, 4)
     tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
     wave_resistance_model = SailRoute.typical_aerrtsen()
@@ -35,10 +35,10 @@ end
 
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance()
-    t_inc = 24
-    min_dist = 30.0
+    t_inc = 48
+    min_dist = 40.0
     ensemble = 1
-    save_path = datadir()*"/vary_perf_75_30/"
+    save_path = datadir()*"/vary_perf_40/"
     perfs, perf_names = generate_canoe_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
     weather_paths = [weather_base_path*"polynesia_2004_q1/polynesia_2004_q1.nc",
@@ -47,6 +47,51 @@ function vary_performance()
                     "2004_q2"]
     weather_times = [Dates.DateTime(2004, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 3, 31, 0, 0, 0),
                      Dates.DateTime(2004, 4, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2004, 6, 30, 0, 0, 0)]
+    # start_lon = -175.15
+    # start_lat = -21.21
+    # finish_lon = -149.42
+    # finish_lat = -17.67
+    # route_name = "Tongatapu_Tahiti"
+    start_lon = 360-171.75
+    start_lat = -13.6
+    finish_lon = 360-159.79
+    finish_lat = -18.85
+    route_name = "Samoa_Aitiutaki"
+    save_paths = []
+    settings = []
+    for p in eachindex(perfs)
+        for w in eachindex(weather_times)
+            fname = save_path*"_"*weather_names[w]*"_"*perf_names[p]*"_"*route_name*"_ensemble_"*string(ensemble)*"_"*string(min_dist)
+            push!(save_paths, fname)
+            setting = [weather_times[w], weather_paths[w], perfs[p], start_lon, finish_lon, start_lat, finish_lat, min_dist, ensemble]
+            push!(settings, setting)
+        end 
+    end
+    println(length(settings))
+    return save_paths, settings
+end
+
+
+"""Generate simulation settings to study the influence of performance variation."""
+function vary_performance_investigation()
+    t_inc = 48
+    min_dist = 40.0
+    ensemble = 1
+    save_path = datadir()*"/vary_perf_40/"
+    perfs, perf_names = generate_canoe_performance_types()
+    weather_base_path = "/scratch/td7g11/era5/"
+    weather_paths = [weather_base_path*"polynesia_2010_q4/polynesia_2010_q4.nc",
+                     weather_base_path*"polynesia_2011_q1/polynesia_2011_q1.nc",
+                     weather_base_path*"polynesia_1997_q4/polynesia_1997_q4.nc",
+                     weather_base_path*"polynesia_1998_q1/polynesia_1998_q1.nc"]
+    weather_names = ["2010_q4",
+                    "2011_q1",
+                    "1997_q4",
+                    "1998_q1"]
+    weather_times = [Dates.DateTime(2010, 10, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2010, 12, 31, 0, 0, 0),
+                     Dates.DateTime(2011, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(2011, 3, 31, 0, 0, 0),
+                     Dates.DateTime(1997, 10, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1997, 12, 31, 0, 0, 0),
+                     Dates.DateTime(1998, 1, 1, 0, 0, 0):Dates.Hour(t_inc):Dates.DateTime(1998, 3, 31, 0, 0, 0)]
     # start_lon = -175.15
     # start_lat = -21.21
     # finish_lon = -149.42
