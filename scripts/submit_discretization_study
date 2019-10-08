@@ -8,7 +8,12 @@ export PATH="/scratch/td7g11/julia/julia-1.1.0/bin/:${PATH}"
 
 cd $HOME/routing_analysis
 
-
-julia -p 20  scripts/run_discretization_study.jl 1 30
-julia -p 20  scripts/run_discretization_study.jl 1 20
-julia -p 30  scripts/run_discretization_study.jl 1 10
+julia -p 20  scripts/run_discretization_study.jl 90
+julia -p 20  scripts/run_discretization_study.jl 80
+julia -p 20  scripts/run_discretization_study.jl 70
+julia -p 20  scripts/run_discretization_study.jl 60
+julia -p 20  scripts/run_discretization_study.jl 50
+julia -p 20  scripts/run_discretization_study.jl 40
+julia -p 20  scripts/run_discretization_study.jl 30
+julia -p 20  scripts/run_discretization_study.jl 20
+julia -p 20  scripts/run_discretization_study.jl 10

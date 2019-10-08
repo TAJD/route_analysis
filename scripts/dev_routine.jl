@@ -1,9 +1,9 @@
-using DrWatson
-quickactivate(@__DIR__, "routing_analysis")
-include(srcdir()*"/ensemble_routing.jl")
-include(srcdir()*"/load_route_settings.jl")
-include(srcdir()*"/load_weather.jl")
-include(srcdir()*"/load_performance.jl")
+using DrWatson, LinearAlgebra
+quickactivate(@__DIR__)
+include(srcdir("ensemble_routing.jl"))
+include(srcdir("load_route_settings.jl"))
+include(srcdir("load_weather.jl"))
+include(srcdir("load_performance.jl"))
 
 
 using SailRoute, PyCall, Dates, Plots
@@ -19,10 +19,10 @@ rh = pyimport("routing_helper")
     n = SailRoute.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
     base_path = "/scratch/td7g11/era5/"
     route = SailRoute.Route(lon1, lon2, lat1, lat2, n, n)
-    quarter = "q2"
+    quarter = "q1"
     year_str = string(year)
     weather = base_path*"polynesia_"*year_str*"_"*quarter*"/polynesia_"*year_str*"_"*quarter*".nc"
-    start_time = Dates.DateTime(2005, 1, 1, 0, 0, 0)
+    start_time = Dates.DateTime(year, 1, 1, 0, 0, 0)
     wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
     x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
     dims = size(wisp)
@@ -34,40 +34,35 @@ rh = pyimport("routing_helper")
     sample_perf = SailRoute.Performance(polar, 1.0, 1.0, res);
     results = SailRoute.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
     println("twa_min = ", twa_min, " dist = ", min_dist, " ens = ", ensemble, " vt = ", results[1])
-    return results
+    return results[1], results[2], results[3], x, y
 end
 
 
 @time function dev_comparison_sims(min_dist, ensemble, year)
-    lon1 = -171.75
-    lat1 = -13.917
-    lon2 = -158.07
-    lat2 = -19.59
+    # lon1 = -171.75
+    # lat1 = -13.917
+    # lon2 = -158.07
+    # lat2 = -19.
+    lat1, lon1 = -18.65, -173.98
+    lat2, lon2 = -13.91, -171.75
     n = SailRoute.calc_nodes(lon1, lon2, lat1, lat2, min_dist)
     base_path = "/scratch/td7g11/era5/"
     route = SailRoute.Route(lon1, lon2, lat1, lat2, n, n)
-    quarter = "q2"
+    quarter = "q1"
     year_str = string(year)
     weather = base_path*"polynesia_"*year_str*"_"*quarter*"/polynesia_"*year_str*"_"*quarter*".nc"
     start_time = Dates.DateTime(year, 1, 1, 0, 0, 0)
     wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(weather, ensemble)
     x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
+    display(scatter(x, y, title="Grid generation example, min_dist = "*string(min_dist)))
     dims = size(wisp)
     cusp, cudi = return_current_vectors(y, dims[1])
-    tws_speeds = [0.0, 5.0, 10.0, 20.0, 25.0, 30.0, 31.0]
     # polar = load_boeckv2()
     polar =  load_tong()
     res = SailRoute.typical_aerrtsen()
     sample_perf = SailRoute.Performance(polar, 1.0, 1.0, res);
-    @time results = SailRoute.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
-    return results
-end
-
-
-function plot_results(array)
-    for i in array
-        plot(i[2][:, 1], i[2][:, 2])
-    end
+    results = SailRoute.route_solve(route, sample_perf, start_time, time_indexes, x, y, wisp, widi, wadi, wahi, cusp, cudi)
+    return results[1], results[2], results[3], x, y
 end
 
 
@@ -75,10 +70,13 @@ function investigate_performance_variation(n, min_dist, min_twa)
     save_paths, settings = vary_performance()
     times = [DateTime(t) for t in settings[n][1]]
     nodes = SailRoute.calc_nodes(settings[n][4], settings[n][5], settings[n][6], settings[n][7], min_dist)
-    route = SailRoute.Route(settings[n][4], settings[n][5], settings[n][6], settings[n][7], nodes, nodes)
+    start_lat, start_lon = -18.65, -173.98
+    finish_lat, finish_lon = -13.91, -171.75
+    route = SailRoute.Route(start_lon, start_lat, finish_lon, finish_lat, nodes, nodes)
     start_time = times[n]
     wisp, widi, wahi, wadi, wapr, time_indexes = load_era5_ensemble(settings[n][2], settings[n][9])
     x, y, wisp, widi, wadi, wahi = generate_inputs(route, wisp, widi, wadi, wahi)
+    scatter(x, y)
     dims = size(wisp)
     cusp, cudi = return_current_vectors(y, dims[1])    
     start_time_idx = SailRoute.time_to_index(start_time, times)
@@ -152,6 +150,38 @@ function investigate_performance_variation(n, min_dist, min_twa)
     end
     sp = SailRoute.shortest_path(node_indices, prev_node, [final_node])
     locs = SailRoute.get_locs(node_indices, sp, x, y)
+    x_path = vcat([start_lon], locs[:, 1], [finish_lon])
+    y_path = vcat([start_lat], locs[:, 2], [finish_lat])
+    locs = hcat(x_path, y_path)
     return arrival_time, locs, earliest_times
 end
 
+
+function compare_grid_generation(min_dist)
+    # start_lat, start_lon = -18.65, -173.98
+    # finish_lat, finish_lon = -13.91, -171.75
+    start_lon = -171.75
+    start_lat = -13.917
+    start_lon = -158.07
+    finish_lat = -19.59
+    # start_lat, start_lon = 0.0, 0.0
+    # finish_lat, finish_lon = 0.0, 10.0
+    nodes = SailRoute.calc_nodes(start_lon, start_lat, finish_lon, finish_lat, min_dist)
+    route = SailRoute.Route(start_lon, start_lat, finish_lon, finish_lat, nodes, nodes)
+    grid_x, grid_y = generate_grid_euc(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes)
+    scatter(grid_x, grid_y, title="Grid generation example, min_dist = "*string(min_dist))
+    scatter!([start_lon], [start_lat])
+    display(scatter!([finish_lon],[finish_lat]))
+end
+
+# arrival_time, locs, earliest_times = investigate_performance_variation(1, 100, 60.0)
+# display(plot!(locs[:, 1], locs[:, 2], title="Vt = "*string(arrival_time/24.0)))
+for i in LinRange(100.0, 10.0, 10)
+    # compare_grid_generation(i)
+    # arrival_time, locs, earliest_times, x, y = dev_comparison_sims(i, 1, 2004)
+    # scatter(x, y)
+    # display(plot!(locs[:, 1], locs[:, 2], title="Vt = "*string(arrival_time/24.0)))
+    arrival_time, locs, earliest_times, x, y = dev_routing_example(i, 1, 40.0, 2004)
+    scatter(x, y)
+    display(plot!(locs[:, 1], locs[:, 2], title="Vt = "*string(arrival_time/24.0)))
+end

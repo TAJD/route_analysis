@@ -33,10 +33,21 @@ end
     return interp_values
 end
 
+function generate_grid_euc(start_lon, start_lat, finish_lon, finish_lat, nodes)
+    dist = norm([start_lon, start_lat]-[finish_lon, finish_lat])
+    spacing = dist/(nodes+1)
+    alpha = atan(finish_lat-start_lat, finish_lon-start_lon)
+    x_dist = spacing
+    y_dist = spacing
+    grid_x = reshape(start_lon.+[i*x_dist for j in range(0, length=nodes).-(nodes-1)/2 for i in range(1, length=nodes)], (nodes, nodes))
+    grid_y = reshape(start_lat.+[j*y_dist for j in range(0, length=nodes).-(nodes-1)/2 for i in range(1, length=nodes)], (nodes, nodes))
+    rot_grid_x = [SailRoute.rotate_point(start_lon, start_lat, x, y, alpha, true) for (x, y) in zip(grid_x,grid_y)]
+    rot_grid_y = [SailRoute.rotate_point(start_lon, start_lat, x, y, alpha, false) for (x, y) in zip(grid_x,grid_y)]
+    return rot_grid_x[end:-1:1,end:-1:1], rot_grid_y[end:-1:1,end:-1:1]
+end
 
 function generate_inputs(route, wisp, widi, wadi, wahi)
-    y_dist = SailRoute.haversine(route.lon1, route.lon2, route.lat1, route.lat2)[1]/(route.y_nodes+1)
-    x, y = generate_coords(route.lon1, route.lon2, route.lat1, route.lat2, route.x_nodes, route.y_nodes, y_dist)
+    x, y = generate_grid_euc(route.lon1, route.lat1, route.lon2, route.lat2, route.x_nodes)
     wisp = regrid_domain(wisp, x, y)
     wisp = wisp.*1.9438444924406 # convert from m/s to knots
     widi = regrid_domain(widi, x, y)

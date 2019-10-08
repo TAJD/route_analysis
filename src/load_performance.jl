@@ -74,8 +74,8 @@ end
 
 """Generate simulation settings to study the influence of performance variation."""
 function vary_performance_investigation()
-    t_inc = 48
-    min_dist = 40.0
+    t_inc = 24
+    min_dist = 30.0
     ensemble = 1
     save_path = datadir()*"/vary_perf_40/"
     perfs, perf_names = generate_canoe_performance_types()
