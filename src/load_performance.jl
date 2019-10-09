@@ -77,7 +77,7 @@ function vary_performance_investigation()
     t_inc = 24
     min_dist = 30.0
     ensemble = 1
-    save_path = datadir()*"/vary_perf_40/"
+    save_path = datadir()*"/vary_perf_30/"
     perfs, perf_names = generate_canoe_performance_types()
     weather_base_path = "/scratch/td7g11/era5/"
     weather_paths = [weather_base_path*"polynesia_2010_q4/polynesia_2010_q4.nc",

@@ -12,9 +12,9 @@ using Distributed, ParallelDataTransfer
 
     """Generate simulations to compare Tongiaki and Outrigger designs."""
     function generate_comparison_simulations()
-        t_inc = 24
-        min_dist = 20.0
-        base_path = datadir()*"/sims/comparison/daily_20/"
+        t_inc = 48
+        min_dist = 40.0
+        base_path = datadir()*"/sims/comparison/daily_40/"
         perf_names = ["simulations"]
         res = SailRoute.typical_aerrtsen()
         perfs = [[SailRoute.Performance(load_tong(), 1.0, 1.0, res), 

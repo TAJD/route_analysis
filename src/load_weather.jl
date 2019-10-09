@@ -1,4 +1,4 @@
-using Dates, Interpolations, PyCall, CSV, SailRoute
+using Dates, Interpolations, PyCall, CSV, SailRoute, LinearAlgebra
 rh = pyimport("routing_helper")
 
 
